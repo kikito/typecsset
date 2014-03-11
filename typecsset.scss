@@ -37,6 +37,20 @@ $typecsset-indented-paragraphs: false !default;
 // Would you like to show a baseline grid? This is handy during development.
 $typecsset-show-baseline:       false !default;
 
+// Would you like to automatically scale your Heading sizes?
+$typecsset-auto-scale:          false !default;
+
+// Set the ratio by which the type should grow.
+// You can use a fraction (4/3) or a float(1.618). Must be >= 1. Common ratios:
+// * Perfect fourth [default]: 4/3
+// * Perfect Fifth:  3/2
+// * Perfect Octave: 2
+// * Major Third: 5/4
+// * Major Sixth: 5/3
+// * Golden Ratio 1.618
+$typecsset-auto-scale-ratio:    4/3 !default;
+
+
 // Do not modify these variables; they are internal settings upon which the
 // library depends.
 $typecsset-magic-number:        $typecsset-base-line-height;
@@ -86,9 +100,18 @@ $typecsset-magic-ratio:         $typecsset-base-line-height / $typecsset-base-fo
     @return $number / ($number * 0 + 1);
 }
 
+// Given a level, return the font size associated to that heading using the auto-scale scale
+@function typecsset-auto-scale-heading-font-size($level){
+  $level: 7 - $level; // 1 gets transformed into 6, 2 into 5, 3 into 4, etc
+  $stripped-base-font-size: typecsset-strip-units($typecsset-base-font-size);
 
+  $exponent: $typecsset-auto-scale-ratio;
+  @for $i from 2 through $level{
+    $exponent: $exponent * $typecsset-auto-scale-ratio;
+  }
 
-
+  @return $exponent * $stripped-base-font-size * 1px;
+}
 
 /*------------------------------------*\
     #SHARED
@@ -154,6 +177,16 @@ body {
 /*------------------------------------*\
     #HEADINGS
 \*------------------------------------*/
+
+@if $typecsset-auto-scale {
+  $typecsset-h1-size: typecsset-auto-scale-heading-font-size(1);
+  $typecsset-h2-size: typecsset-auto-scale-heading-font-size(2);
+  $typecsset-h3-size: typecsset-auto-scale-heading-font-size(3);
+  $typecsset-h4-size: typecsset-auto-scale-heading-font-size(4);
+  $typecsset-h5-size: typecsset-auto-scale-heading-font-size(5);
+  $typecsset-h6-size: typecsset-auto-scale-heading-font-size(6);
+}
+
 h1 {
     @extend %typecsset-vertical-rhythm;
     @include typecsset-font-size($typecsset-h1-size);
